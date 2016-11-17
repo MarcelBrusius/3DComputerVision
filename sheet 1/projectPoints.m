@@ -1,4 +1,4 @@
-function [ Plane ] = projectPoints ( World , Intrinsic, inverse_Intrinsic , Rotation, Translation, varargin ) 
+function [ Plane ] = projectPoints ( World , Intrinsic , Rotation, Translation, varargin ) 
 %
 %
     ip = inputParser;
@@ -12,7 +12,11 @@ function [ Plane ] = projectPoints ( World , Intrinsic, inverse_Intrinsic , Rota
         disp('Radial distortion considered.');
     end
     
+    inverse_Intrinsic = inv(Intrinsic);
+    
     Plane = Intrinsic*[Rotation Translation]*[World;ones(1,40)];
+    
+    
     
     normalized_Plane = inverse_Intrinsic * Plane;
     r = norm(normalized_Plane(1:2),2);
