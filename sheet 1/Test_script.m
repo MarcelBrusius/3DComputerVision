@@ -1,12 +1,13 @@
-image = imread('00007.jpg');
+image = imread('00001.jpg');
 load('Calib_Results.mat');
 
-Plane = projectPoints(X_8, KK, inv_KK, Rc_8, Tc_8, 'Dist',kc);
+Plane = projectPoints(X_2, KK, inv_KK, Rc_2, Tc_2, 'Dist',kc);
 
-imagesc(image);
-% hold on;
 H = figure;
-plot(Plane(:,1),-Plane(:,2),'r*');
+imagesc([-320 320], [-240 240],image);
+hold on;
+% H = figure;
+plot(Plane(:,1),Plane(:,2),'r*');
 % figure;
 % plot(X_8(1,:),-X_8(2,:),'bx');
 % G = H.CurrentAxes;
