@@ -15,7 +15,7 @@ function [ Plane ] = projectPoints ( World , Intrinsic, inverse_Intrinsic , Rota
     Plane = Intrinsic*[Rotation Translation]*[World;ones(1,40)];
     
     normalized_Plane = inverse_Intrinsic * Plane;
-    r = norm(Plane(1:2),2);
+    r = norm(normalized_Plane(1:2),2);
     dist_free_Plane = normalized_Plane * (1+var.Dist(1)*r^2 + var.Dist(2)*r^4 + var.Dist(5)*r^6) ;
     
     Plane = dist_free_Plane' * Intrinsic;
