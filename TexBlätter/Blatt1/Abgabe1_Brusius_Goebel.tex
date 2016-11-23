@@ -1,0 +1,178 @@
+\documentclass[11pt,english,paper=a4]{scrartcl}
+
+%AMS-Pakete
+\usepackage{amsmath,amsfonts,makeidx,amsthm,amssymb}
+\usepackage{graphicx}
+\usepackage[abs]{overpic}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{array}
+\usepackage{float}
+\usepackage{framed}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage[section]{algorithm}
+\usepackage{algorithmicx}
+\usepackage[noend]{algpseudocode}
+\usepackage{listings}
+\lstset{language=Matlab}
+\usepackage{textcomp}
+\usepackage{pgfplots}
+\usepackage{mathtools}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\definecolor{tuklblue}{RGB}{0,95,140}
+\definecolor{tuklred}{RGB}{185,40,25}
+\definecolor{tuklgreen}{RGB}{1,147,119}
+\hypersetup{%
+	colorlinks=true,%
+	linkcolor=tuklblue,%
+	citecolor=tuklgreen,%
+	urlcolor=tuklred%
+}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+\setlength{\extrarowheight}{1ex}
+\theoremstyle{definition} %So ist alles nicht kursiv. Sätze und Definitionen wären kursiv eventuell schöner. Wie geht das genau nur diese zu ändern?
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{corollary}[definition]{Corollary}
+\newtheorem{notation}[definition]{Notation}
+\newtheorem{remark}[definition]{Remark}
+\newtheorem{algo}[algorithm]{Algorithm}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{example}[definition]{Example}
+\newtheorem{Exercise}{Exercise}
+\newtheorem*{Solution}{Solution}
+
+\makeatletter 
+\let\c@algorithm\c@definition
+\makeatother
+
+
+\newcommand{\zb}[1]{\ensuremath{\boldsymbol{#1}}}
+\newcommand{\R}{\mathbb{R}}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\grad}{grad}
+\DeclareMathOperator*{\supp}{supp}
+\DeclareMathOperator{\spn}{span}
+\newcommand{\tT}{\mathrm{T}}
+
+\setlength{\parindent}{0pt}
+\setcounter{MaxMatrixCols}{11}
+
+\begin{document}
+	
+	\begin{titlepage}
+		\parskip=0pt
+		\parindent=0pt
+		\begin{tikzpicture}[remember picture,overlay]
+		\node [anchor=north west, inner xsep=0pt, inner ysep=2.1cm] at
+		(current page.north west)
+		{\includegraphics[height=16mm]{tukl_logo_left_padded.png}};
+		\end{tikzpicture}
+		\begin{center}
+			\par\vspace{5cm}
+			{\huge \textbf{3D Computer Vision
+					\\[.2\baselineskip] 
+					Exercise Sheet 1}}
+					
+
+			\par\vspace{2\baselineskip}
+			{\large Marcel Brusius and Leif Eric Goebel}
+			\par\vspace{3\baselineskip}
+			{\large{ University of Kaiserslautern\\
+					Departement of Mathematics\\		
+				}}
+				\par
+				\vspace{3\baselineskip}
+				Kaiserslautern, \today
+				\thispagestyle{empty}
+			\end{center}
+		\end{titlepage}
+
+	
+	
+	
+	
+	
+
+\begin{Exercise}[Properties of Rotation Matrices]\ \\
+	Rotation matrices are orthogonal matrices with determinant 1. \par
+	\begin{itemize}
+		\item[1.] Show that $U^T = U^{-1}$ holds for a \emph{general} rotation matrix $U \in \R^{3\times 3}$. Note that by definition $UU^T = I \Leftrightarrow U^{-1} = U^T$.
+		\item[2.] What is the geometric interpretation of the determinatent of a square $3\times3$ matrix A? Why does a determination matrix have determinant 1?. Hint: Compare the determinants of base transformations(e.g. a rotation, translation,...)
+	\end{itemize}
+\end{Exercise}
+
+\begin{Solution}[to Exercise 1.1]\ \\
+	For every orthogonal matrix $U \in \R^{n\times n}$ it holds
+	\begin{equation*}
+		U U^T = I
+	\end{equation*}
+	by definition(see \cite[Def. 22.1b)]{GDMGathmann}). 
+	Now, with the remark in Exercise 1 that rotation matrices are orthogonal matrices with determinant 1, the statement apparently holds true.
+\end{Solution}
+
+\begin{Solution}[to Exercise 1.2]\ \\
+	Let $A \in \R^{3\times3}$ be an arbitrary square matrix. We denote $A$ by 
+	\begin{equation}A = 
+		\begin{pmatrix}
+		a_{11} & a_{12} & a_{13} \\
+		a_{21} & a_{22} & a_{23} \\
+		a_{31} & a_{32} & a_{33} \\
+		\end{pmatrix}.
+	\end{equation}
+	Then we use the definition of a $3\times3$ determinant.
+	\begin{equation*}
+		det(A) = a_{11}a_{22}a_{33} + a_{21}a_{32}a_{13} + a_{31}a_{12}a_{23} - a_{31}a_{22}a_{13} - a_{32}a_{23}a_{33} - a_{11}a_{32}a_{23}
+	\end{equation*}
+	Furthermore, we have the \emph{triple product} $V$ defined by three vectors
+	\begin{align*}
+	V(A) &= 
+		\left(\begin{pmatrix}	
+			a_{11} \\
+			a_{21} \\
+			a_{31}
+		\end{pmatrix} \times
+		\begin{pmatrix}	
+		a_{12} \\
+		a_{22} \\
+		a_{32}
+		\end{pmatrix}\right) \cdot
+		\begin{pmatrix}	
+		a_{13} \\
+		a_{23} \\
+		a_{33}
+		\end{pmatrix} \\
+		&= 
+		\begin{pmatrix}
+			a_{21}a_{32} - a_{31}a_{22} \\
+			a_{31}a_{12} - a_{32}a_{11} \\
+			a_{11}a_{22} - a_{21}a_{12} 
+		\end{pmatrix} \cdot
+		\begin{pmatrix}
+			a_{13} \\
+			a_{23} \\
+			a_{33}
+		\end{pmatrix}\\
+		&=a_{11}a_{22}a_{33} + a_{21}a_{32}a_{13} + a_{31}a_{12}a_{23} - a_{31}a_{22}a_{13} - a_{32}a_{23}a_{33} - a_{11}a_{32}a_{23}\\
+		&= det(A)
+	\end{align*}
+	
+	We see that the determinant of a $3\times 3$ matrix is equal to the triple product. The triple product equals the volume of the parallelepiped spanned by the three columns of the matrix. Rotation matrices do not change the Volume of the parallelepiped. This leads to them having a determinant equal to 1. 
+\end{Solution}
+
+
+\newpage
+\bibliographystyle{plain}
+\bibliography{Literature}
+
+\end{document}
