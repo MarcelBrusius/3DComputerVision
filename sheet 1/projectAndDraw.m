@@ -13,19 +13,19 @@ load('Calib_Results.mat');
 image = num2str(image+1);
 
 if dist == 1
-Plane_Dist = projectPoints(eval(['X_',image]), KK, eval(['Rc_',image]), eval(['Tc_',image]), 'Dist',kc);
-else
-Plane = projectPoints(str2double(eval(['X_',image]), KK, eval(['Rc_',image]), eval(['Tc_',image])));
-end
-
 H = figure;
 imagesc([-320 320], [-240 240],img);
 hold on;
-% H = figure;
+Plane_Dist = projectPoints(eval(['X_',image]), KK, eval(['Rc_',image]), eval(['Tc_',image]), 'Dist',kc);
 plot(Plane_Dist(1,:),Plane_Dist(2,:),[colour,'*']);
-% figure;
+else
+H = figure;
+imagesc([-320 320], [-240 240],img);
 hold on;
-plot(Plane(1,:),Plane(2,:),'bx');
+Plane = projectPoints(eval(['X_',image]), KK, eval(['Rc_',image]), eval(['Tc_',image]));
+plot(Plane(1,:),Plane(2,:),[colour,'x']);
+end
+
 
 end
 
