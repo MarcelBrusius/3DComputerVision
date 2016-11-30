@@ -15,10 +15,10 @@ R_rel_1 = inv(K)*H1*K;
 
 R_rel_2 = inv(K)*H2*K;
 
-if equal(eye(3),R_rel_2'*R_rel_2)
+if isequal(eye(3),R_rel_2'*R_rel_2)
     disp('Rotation matrix property fulfilled.')
 else
-    disp('Rotation matrix property not fulfilled.')
+    disp('Rotation matrix property not fulfilled. Correcting...')
     [U,~,V] = svd(R_rel_2);
     R_rel_2_corrected = U*V';
 end
