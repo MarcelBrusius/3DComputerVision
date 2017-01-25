@@ -1,0 +1,202 @@
+\documentclass[11pt,english,paper=a4]{scrartcl}
+
+%AMS-Pakete
+\usepackage{amsmath,amsfonts,makeidx,amsthm,amssymb}
+\usepackage{graphicx}
+\usepackage[abs]{overpic}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{array}
+\usepackage{float}
+\usepackage{framed}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage[section]{algorithm}
+\usepackage{algorithmicx}
+\usepackage[noend]{algpseudocode}
+\usepackage{listings}
+\lstset{language=Matlab}
+\usepackage{textcomp}
+\usepackage{pgfplots}
+\usepackage{mathtools}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\definecolor{tuklblue}{RGB}{0,95,140}
+\definecolor{tuklred}{RGB}{185,40,25}
+\definecolor{tuklgreen}{RGB}{1,147,119}
+\hypersetup{%
+	colorlinks=true,%
+	linkcolor=tuklblue,%
+	citecolor=tuklgreen,%
+	urlcolor=tuklred%
+}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+\setlength{\extrarowheight}{1ex}
+\theoremstyle{definition} %So ist alles nicht kursiv. Sätze und Definitionen wären kursiv eventuell schöner. Wie geht das genau nur diese zu ändern?
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{corollary}[definition]{Corollary}
+\newtheorem{notation}[definition]{Notation}
+\newtheorem{remark}[definition]{Remark}
+\newtheorem{algo}[algorithm]{Algorithm}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{example}[definition]{Example}
+\newtheorem{Exercise}{Exercise}
+\newtheorem*{Solution}{Solution}
+
+\makeatletter 
+\let\c@algorithm\c@definition
+\makeatother
+
+
+\newcommand{\zb}[1]{\ensuremath{\boldsymbol{#1}}}
+\newcommand{\R}{\mathbb{R}}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\grad}{grad}
+\DeclareMathOperator*{\supp}{supp}
+\DeclareMathOperator{\spn}{span}
+\newcommand{\tT}{\mathrm{T}}
+
+\setlength{\parindent}{0pt}
+\setcounter{MaxMatrixCols}{11}
+
+\begin{document}
+	
+	\begin{titlepage}
+		\parskip=0pt
+		\parindent=0pt
+		\begin{tikzpicture}[remember picture,overlay]
+		\node [anchor=north west, inner xsep=0pt, inner ysep=2.1cm] at
+		(current page.north west)
+		{\includegraphics[height=16mm]{tukl_logo_left_padded.png}};
+		\end{tikzpicture}
+		\begin{center}
+			\par\vspace{5cm}
+			{\huge \textbf{3D Computer Vision
+					\\[.2\baselineskip] 
+					Exercise Sheet 1}}
+					
+
+			\par\vspace{2\baselineskip}
+			{\large Marcel Brusius and Leif Eric Goebel}
+			\par\vspace{3\baselineskip}
+			{\large{ University of Kaiserslautern\\
+					Departement of Mathematics\\		
+				}}
+				\par
+				\vspace{3\baselineskip}
+				Kaiserslautern, \today
+				\thispagestyle{empty}
+			\end{center}
+		\end{titlepage}
+
+	
+	
+	
+	
+%%%%%%%%%%%%%%%%%%Exercises%%%%%%%%%%%%%%%%%
+
+%Exercise 1
+\begin{Exercise}[Homography Definition]\ \\
+	In the lecture a homography  was introduced as $h : \mathbb{P}^2 \rightarrow \mathbb{P}^2$. Define it for $h:\mathbb{P}^n \rightarrow \mathbb{P}^n$. How many degrees of freedom has the homography?
+\end{Exercise}
+
+\begin{Solution}[to Exercise 1]\ \\
+	A Homography is an invertible, line-preserving projective mapping $h: \mathbb{P}^n \rightarrow \mathbb{P}^n$. It is represented by a square $(n+1) \times (n+1)$ matrix with $(n+1)^2-1$ degrees of freedom.
+\end{Solution}
+
+%Exercise 2
+\begin{Exercise}\ \\
+	A Homography between two images taken with the same camera can be used to compute the relative
+	rotation $R_{rel}$ (in case the camera has only undergone a rotation between the shots). The relative rotation
+	tells how the camera was placed between the two shots. For the following tasks assume a camera with
+	given intrinsic parameters $(\alpha_x,\alpha_y, x_0, x_0, s)$. Use Matlab as a calculator and explain your intermediate
+	steps.
+\end{Exercise}
+
+\begin{Solution}\ \\
+	See file \verb|Homography.m|
+\end{Solution}
+
+%Exercise 3
+\begin{Exercise}\ \\
+	A homography between a plane in the world coordinate system and a camera image can be used to
+	compute rotation R and translation t of the camera. Assume a camera with given $(\alpha_x, \alpha_y, x_0, y_0, s)$ and
+	a homography H3, that was computed from the corners of a (fully visible) chessboard. The chessboard
+	lies in the xy-plane of the world coordinate system centered around the origin. Compute R and t. Use
+	Matlab as a calculator and explain your intermediate steps.
+\end{Exercise}
+
+\begin{Solution}
+	See file \verb|Homography.m|. It is displayed in the console.
+\end{Solution}
+
+%Exercise 4
+\begin{Exercise}\ \\
+	\begin{itemize}
+		\item [1.] Illustrate the meaning of $t = -RC$ in a camera pose $[R|t]$, i.e. from where to where does this vector point? Hint: What is linked by $[R|t]$? Try applying $[R|t]$ to the origin of the world. \\
+		\item [2.] The third element of $t$ in exercise 3 might be negative. What does this mean in this particular case (consider the location of the chessboard corners)? Why can this happen?
+	\end{itemize}
+\end{Exercise}
+
+\begin{Solution}
+	\begin{itemize}
+		\item [1.]	The vector $t = -RC$ illustrates the rotation and translation of the camera in world coordinates. The coordinates C are the of the camera in world coordinates. Applying R to them leads to the rotation. The $-$ in front of the vector makes it pointing from the camera c to the origin of the world. \\
+		If we apply $[R|t]$ to the origin of the world we get again the origin of the world. \\
+		\item[2.] The third element of the vector $t$ in the third exercise can be interpreted as the position of the camera relative to the XY-plane. If the third entry of $t$ is positive the camera is above the chessboard, whereat it is beneath the chessboard if the entry is negative. The corners of the chessboard remains the same.
+	\end{itemize}
+
+\end{Solution}
+
+%Exercise 5
+\begin{Exercise}\ \\
+	Let $x_1, x_2, x_3 \in \mathbb{P}^2$ be three points on a line. Show that a homography H preserves this property. Hint: Use the implicit definition of a line $ax + by + c = 0$, thus $l = (a,b,c)$.
+\end{Exercise}
+By definition we have for a line 
+\begin{equation*}
+ax + by +c = 0.
+\end{equation*}
+In matrix vector notation we have for 
+$l = 
+\begin{pmatrix}
+a \\
+b \\
+c
+\end{pmatrix}$
+
+\begin{equation*}
+l^T x = 0 \text{ for } 
+x = \begin{pmatrix}
+x \\
+y \\
+1
+\end{pmatrix}
+\end{equation*}
+Furthermore we have by definition, that each Homography $H$ is invertible and line preserving. We define 
+\begin{equation*}
+\tilde{x} := Hx.
+\end{equation*}
+
+Using the line-preserving property and the non-singularity of H we get
+\begin{equation*}
+0 = \underbrace{l^T H^{-1}}_{=:K} \tilde{x},
+\end{equation*}
+which is again a line equation.
+\begin{Solution}
+	
+\end{Solution}
+
+
+\newpage
+\bibliographystyle{plain}
+\bibliography{Literature}
+
+\end{document}
