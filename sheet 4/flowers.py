@@ -219,13 +219,13 @@ def ssd(feature_1, feature_2):
 	raise NotImplementedError
 
 def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
-	cost = img_left(W_BOUND(1):W_BOUND(2),B_BOUND(1):B_BOUND(2))
+	cost = img_left[W_BOUND(1):W_BOUND(2),B_BOUND(1):B_BOUND(2)]
 	for x in range(W_BOUND[1],W_BOUND[2]):
 		for y in range(H_BOUND[1],H_BOUND[2]):
 			P_x_y = img_left[x,y]
 			patch1 = img_left[x-K_SIZE/2.0:x+K_SIZE/2.0,y-K_SIZE/2.0:y+K_SIZE/2.0]
 			for b in range(W_BOUND[1],W_BOUND[2]):
-				cost(b,y) = ncc(patch1,img_right[b-K_SIZE/2.0:b+K_SIZE/2.0,y-K_SIZE/2.0:y+K_SIZE/2.0])
+				cost[b,y] = ncc(patch1,img_right[b-K_SIZE/2.0:b+K_SIZE/2.0,y-K_SIZE/2.0:y+K_SIZE/2.0])
 	depth = disparity_to_depth(cost)
 	"""
 	TODO
