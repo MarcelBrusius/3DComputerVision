@@ -23,8 +23,11 @@ H_BOUND = (350, 650)
 W_BOUND = (60, 230)
 """
 
-H_BOUND = (400, 650)
-W_BOUND = (40, 230)
+#H_BOUND = (400, 650)
+#W_BOUND = (40, 230)
+
+H_BOUND = (350, 650)
+W_BOUND = (60, 230)
 
 # Minimum and Maximum disparies(dataset specific parameters)
 DISPARITY_BOUND = (int(31/SCALE_FACTOR), int(257/SCALE_FACTOR))

@@ -10,10 +10,10 @@ SCALE_FACTOR = 2
 H_BOUND = (10, 150)
 W_BOUND = (10, 10+500)
 
-EXPNAME = 'exp/'
-os.system('mkdir ./' + EXPNAME)
+#EXPNAME = 'exp/'
+#os.system('mkdir ./' + EXPNAME)
 
-KITTI_PATH = '/habtegebrialdata/temp/Exercise4/data/kitti'
+KITTI_PATH = 'data/kitti'
 calib = io.loadmat(os.path.join(KITTI_PATH, 'pose_and_K.mat'))
 
 K = calib['K']
@@ -29,7 +29,7 @@ DOFFS = 0
 # Outlier filter threshold for ssd
 O_F_THRESHOLD = 2.0
 SIMILARITY_MERTIC = 'ssd'
-k_size = 5
+K_SIZE = 5
 
 # The following three variables will be used by the ply creation function,
 pre_text1 = """ply
@@ -163,19 +163,19 @@ def disparity_to_depth(disparity):
 	return 1/inv_depth
 
 def ncc(patch_1, patch_2):
-	#mean1 = np.mean(patch_1)
-	#mean2 = np.mean(patch_2)
+	mean1 = np.mean(patch_1)
+	mean2 = np.mean(patch_2)
 
-	#std1 = np.std(patch1)
-	#std2 = np.std(patch2)
+	std1 = np.std(patch_1)
+	std2 = np.std(patch_2)
 
-	#normalized1 = np.devide(patch_1-mean1,std1)
-	#normalized2 = np.devide(patch_2-mean2,std2)
+	normalized1 = np.divide(patch_1-mean1,std1)
+	normalized2 = np.divide(patch_2-mean2,std2)
 
-	#vec1 = np.reshape(patch_1,len(patch_1))
-	#vec2 = np.reshape(patch_2,len(patch_2))
+	vec1 = np.reshape(patch_1,(len(patch_1.flat),1))
+	vec2 = np.reshape(patch_2,(len(patch_2.flat),1))
 
-	#dot = np.dot(vec1,vec2)
+	dot = np.dot(vec1.transpose(),vec2)
 	"""
 	TODO
 	1. Normalise the input patch by subtracting its mean and dividing by its standard deviation.
@@ -194,14 +194,14 @@ def ssd(feature_1, feature_2):
 	raise NotImplementedError
 
 def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
-	cost = img_left[W_BOUND(1):W_BOUND(2),B_BOUND(1):B_BOUND(2)]
-	#for x in range(W_BOUND[1],W_BOUND[2]):
-	#	for y in range(H_BOUND[1],H_BOUND[2]):
-	#		P_x_y = img_left[x,y]
-	#		patch1 = img_left[x-K_SIZE/2.0:x+K_SIZE/2.0,y-K_SIZE/2.0:y+K_SIZE/2.0]
-	#		for b in range(W_BOUND[1],W_BOUND[2]):
-	#			cost[b,y] = ncc(patch1,img_right[b-K_SIZE/2.0:b+K_SIZE/2.0,y-K_SIZE/2.0:y+K_SIZE/2.0])
-	#depth = disparity_to_depth(cost)
+	cost = img_left[W_BOUND[0]:W_BOUND[1]+1,H_BOUND[0]:H_BOUND[1]+1,:]
+	k_half = np.int(K_SIZE/2.0)	
+	for x in range(W_BOUND[0],W_BOUND[1]):
+		for y in range(H_BOUND[0],H_BOUND[1]):
+			patch1 = img_left[x-k_half:x+k_half+1,y-k_half:y+k_half+1,:]
+			for b in range(W_BOUND[0],W_BOUND[1]):
+				cost[b-W_BOUND[0],y-H_BOUND[0]] = ncc(patch1,img_right[b-k_half:b+k_half+1,y-k_half:y+k_half+1])
+	depth = disparity_to_depth(cost)
 	print(cost)
 	"""
 	This is on of the functions that you have to write.
