@@ -26,8 +26,8 @@ W_BOUND = (60, 230)
 #H_BOUND = (400, 650)
 #W_BOUND = (40, 230)
 
-H_BOUND = (500, 660)
-W_BOUND = (800, 960)
+H_BOUND = (350, 650)
+W_BOUND = (60, 230)
 
 # Minimum and Maximum disparies(dataset specific parameters)
 DISPARITY_BOUND = (int(31/SCALE_FACTOR), int(257/SCALE_FACTOR))
@@ -138,8 +138,7 @@ def write_depth_to_image(depth, f_name):
 	"""
 	This function writes depth map to f_name
 	"""
-	assert (depth.ndim==2),"Depth map should be a 2D array " 
-	#here was also an error...
+	assert (input_.ndim==2),"Depth map should be a 2D array "
 	max_depth = np.max(depth)
 	min_depth = np.min(depth)
 	depth_v1 = 255 - 255*((depth-min_depth)/max_depth)
@@ -191,29 +190,33 @@ def disparity_to_depth(disparity):
 	return 1/inv_depth
 
 def ncc(patch_1, patch_2):	
+	mean1 = np.mean(patch_1)
+	mean2 = np.mean(patch_2)
+
+	std1 = np.std(patch_1)
+	std2 = np.std(patch_2)
+
+	if ((std1 == 0) and (std2 == 0)):
+		return 1
+	elif (std == 0 and (std2 != 0)):
+		return 0
+
+	normalized1 = np.divide(patch_1-mean1,std1)
+	normalized2 = np.divide(patch_2-mean2,std2)
+
 	vec1 = np.reshape(patch_1,(len(patch_1.flat),1))
 	vec2 = np.reshape(patch_2,(len(patch_2.flat),1))
 
-	norm1 = np.linalg.norm(vec1,2)
-	norm2 = np.linalg.norm(vec1,2)
-
 	dot = np.dot(vec1.transpose(),vec2)
-	if (norm1 == 0 and norm2 == 0):
-		return 0;
-	elif (norm1 == 0 and norm2 != 0):
-		return np.sign(dot)
-	elif (norm1 != 0 and norm2 == 0):
-		return np.sign(dot)
-	else:
-		"""
-		TODO
-		1. Normalise the input patch by subtracting its mean and dividing by its standard deviation.
-		Perform the normalisation for each color channel of the input patch separately.
-		2. Reshape each normalised image patch into a 1D feature vector and then
-		compute the dot product between the resulting normalised feature vectors.
-		"""
-		#raise NotImplementedError
-		return np.divide(dot,norm1*norm2)
+	"""
+	TODO
+	1. Normalise the input patch by subtracting its mean and dividing by its standard deviation.
+	Perform the normalisation for each color channel of the input patch separately.
+	2. Reshape each normalised image patch into a 1D feature vector and then
+	compute the dot product between the resulting normalised feature vectors.
+	"""
+	#raise NotImplementedError
+	return dot
 
 def ssd(feature_1, feature_2):
 	"""
@@ -234,7 +237,6 @@ def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
 				b2,g2,r2 = cv.split(patch2)
 				cost[b-W_BOUND[0],y-H_BOUND[0]] = (ncc(b1,b2)+ncc(g1,g2)+ncc(r1,r2))/3.0 # averaging the depth of each color channel
 	depth = disparity_to_depth(cost)
-	write_depth_to_image(depth,'depth.png')
 	"""
 	TODO
 	This is the main function that you have to write.
@@ -251,7 +253,7 @@ def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
 	# Convert disparity to depth, use disparity_to_depth()
 	# Convert depth to point cloud, use depth_to_3d()
 	# Save point clouds as .ply and depth as .png files
-	#raise NotImplementedError
+	raise NotImplementedError
 	return True
 
 def main():
