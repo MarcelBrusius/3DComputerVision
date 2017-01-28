@@ -11,11 +11,6 @@ You can choose the reduction factor using the SCALE_FACTOR variable.
 """
 SCALE_FACTOR = 3
 
-# Patch Size
-# TODO: Experiment with other values like 3, 13, 17 and observe the result
-K_SIZE = 7
-k_half = np.int(K_SIZE/2.0)
-
 """
 Since our stereo matching  algorithms is going to be slow we will reconstruct only part of the scene.
 You can limit the section to be reconstructed using the following two tuples
@@ -28,14 +23,11 @@ H_BOUND = (350, 650)
 W_BOUND = (60, 230)
 """
 
-H_BOUND = (350, 650)
-W_BOUND = (60, 230)
-
 #H_BOUND = (400, 650)
 #W_BOUND = (40, 230)
 
-#H_BOUND = (550, 560)
-#W_BOUND = (850, 860)
+H_BOUND = (550, 560)
+W_BOUND = (850, 860)
 
 # Minimum and Maximum disparies(dataset specific parameters)
 DISPARITY_BOUND = (int(31/SCALE_FACTOR), int(257/SCALE_FACTOR))
@@ -56,6 +48,10 @@ SIMILARITY_MERTIC = 'ncc'
 # This is usually a parameter which you have to select carefully for each dataset
 #
 O_F_THRESHOLD = 3
+
+# Patch Size
+# TODO: Experiment with other values like 3, 13, 17 and observe the result
+K_SIZE = 7
 
 # Give a folder name for your experiment to keep results of each trial separate
 #EXP_NAME = 'my_exp/'
@@ -231,22 +227,19 @@ def ssd(feature_1, feature_2):
 	raise NotImplementedError
 
 def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
-	#L = img_left[W_BOUND[0]:W_BOUND[1],H_BOUND[0]:H_BOUND[1]]
-	#R = img_right[W_BOUND[0]:W_BOUND[1],H_BOUND[0]:H_BOUND[1]]
-	cost = np.ndarray([W_BOUND[1]-W_BOUND[0],H_BOUND[1]-H_BOUND[0]])
-	size = img_right.shape[1]
-	for x in range(W_BOUND[0],W_BOUND[1]):
-		print(x)
-		for y in range(H_BOUND[0],H_BOUND[1]):
-			patch1 = img_left[x-k_half:x+k_half,y-k_half:y+k_half,:]
-			best_depth = float("inf")
-			for b in range(W_BOUND[0]+np.int(BASELINE),W_BOUND[1]+np.int(BASELINE)):
-				test = ncc(patch1,img_right[x-k_half:x+k_half,b-k_half:b+k_half,:])
-				if (test < best_depth):
-					best_depth = test
-			cost[x-W_BOUND[0],y-H_BOUND[0]] = best_depth
-	#stereo = cv.StereoBM_create(numDisparities=256, blockSize=7)
-	#cost = stereo.compute(L,R)
+	#cost = img_left[W_BOUND[0]:W_BOUND[1]+1,H_BOUND[0]:H_BOUND[1]+1,0]
+	#k_half = np.int(K_SIZE/2.0)
+	#size = img_right.shape[1]
+	#for x in range(W_BOUND[0],W_BOUND[1]):
+	#	for y in range(H_BOUND[0],H_BOUND[1]):
+	#		patch1 = img_left[y-k_half:y+k_half,x-k_half:x+k_half]
+	#		best_depth = float("-inf")
+	#		for b in range(k_half,size-k_half):
+	#			test = ncc(patch1,img_right[y-k_half:y+k_half,b-k_half:b+k_half])
+	#			if (np.abs(test) > best_depth):
+	#				best_depth = np.abs(test)
+	#				cost[x-W_BOUND[0],y-H_BOUND[0]] = test
+	stereo = cv.StereoBM_create(numDisparities=256, blockSize=7)
 	depth = disparity_to_depth(cost)
 	write_depth_to_image(depth,'depth.png')
 	"""
@@ -286,13 +279,10 @@ def main():
 	resized_r_img = cv.pyrDown(r_im, SCALE_FACTOR)
 	right_img = copy_make_border(resized_r_img, K_SIZE)
 
-	#cv.imshow("Image",left_img[60:230,350:650,:])
-	#cv.waitKey(0)
-
-	#L = l_im[H_BOUND[0]:H_BOUND[1],W_BOUND[0]:W_BOUND[1]]
-	#cv.startWindowThread();
-	#cv.imshow("Left Image",L)
-	#cv.waitKey(0)
+	L = l_im[H_BOUND[0]:H_BOUND[1],W_BOUND[0]:W_BOUND[1]]
+	cv.startWindowThread();
+	cv.imshow("Left Image",L)
+	cv.waitKey(0)
 
 	# TODO: #1 fill in the stereo_matching() function called below
 	dummy = stereo_matching(left_img, right_img, K_SIZE, disp_per_pixel)

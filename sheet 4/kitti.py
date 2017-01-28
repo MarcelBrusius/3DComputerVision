@@ -163,19 +163,7 @@ def disparity_to_depth(disparity):
 	return 1/inv_depth
 
 def ncc(patch_1, patch_2):
-	mean1 = np.mean(patch_1)
-	mean2 = np.mean(patch_2)
 
-	std1 = np.std(patch_1)
-	std2 = np.std(patch_2)
-
-	normalized1 = np.divide(patch_1-mean1,std1)
-	normalized2 = np.divide(patch_2-mean2,std2)
-
-	vec1 = np.reshape(patch_1,(len(patch_1.flat),1))
-	vec2 = np.reshape(patch_2,(len(patch_2.flat),1))
-
-	dot = np.dot(vec1.transpose(),vec2)
 	"""
 	TODO
 	1. Normalise the input patch by subtracting its mean and dividing by its standard deviation.
@@ -183,24 +171,30 @@ def ncc(patch_1, patch_2):
 	2. Reshape each normalised image patch into a 1D feature vector and then
 	compute the dot product between the resulting normalised feature vectors.
 	"""
-	raise NotImplementedError
-	return dot
+	#raise NotImplementedError
 
 def ssd(feature_1, feature_2):
+	vec1 = np.reshape(patch_1,(len(patch_1.flat),1))
+	vec2 = np.reshape(patch_2,(len(patch_2.flat),1))
 	"""
 	TODO
 	Compute the sum of square difference between the input features
 	"""
-	raise NotImplementedError
+	#raise NotImplementedError
+	return np.linalg.norm(vec1 - vec2,2)**2
 
 def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
 	cost = img_left[W_BOUND[0]:W_BOUND[1]+1,H_BOUND[0]:H_BOUND[1]+1,:]
 	k_half = np.int(K_SIZE/2.0)	
 	for x in range(W_BOUND[0],W_BOUND[1]):
 		for y in range(H_BOUND[0],H_BOUND[1]):
-			patch1 = img_left[x-k_half:x+k_half+1,y-k_half:y+k_half+1,:]
-			for b in range(W_BOUND[0],W_BOUND[1]):
-				cost[b-W_BOUND[0],y-H_BOUND[0]] = ncc(patch1,img_right[b-k_half:b+k_half+1,y-k_half:y+k_half+1])
+			patch1 = img_left[x-k_half:x+k_half,y-k_half:y+k_half,:]
+			best_depth = float("-inf")
+			for b in range(B_BOUND[0],B_BOUND[1]):
+				test = ssd(patch1,img_right[y-k_half:y+k_half,b-k_half:b+k_half])
+				if (np.abs(test) > best_depth):
+					best_depth = np.abs(test)
+					cost[x-W_BOUND[0],y-H_BOUND[0]] = test
 	depth = disparity_to_depth(cost)
 	print(cost)
 	"""
