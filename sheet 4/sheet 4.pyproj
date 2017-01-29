@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{ea64b4c0-380f-4255-adb0-cbec1b112f72}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>kitti.py</StartupFile>
+    <StartupFile>flowers.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>

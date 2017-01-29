@@ -28,11 +28,11 @@ H_BOUND = (350, 650)
 W_BOUND = (60, 230)
 """
 
-H_BOUND = (0, 660)
-W_BOUND = (0, 960)
+#H_BOUND = (0, 660)
+#W_BOUND = (0, 960)
 
-#H_BOUND = (400, 650)
-#W_BOUND = (40, 230)
+H_BOUND = (400, 650)
+W_BOUND = (40, 230)
 
 #H_BOUND = (550, 560)
 #W_BOUND = (850, 860)
@@ -234,7 +234,8 @@ def ssd(feature_1, feature_2):
 def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
 	#L = img_left[W_BOUND[0]:W_BOUND[1],H_BOUND[0]:H_BOUND[1]]
 	#R = img_right[W_BOUND[0]:W_BOUND[1],H_BOUND[0]:H_BOUND[1]]
-	cost = np.ndarray([W_BOUND[1]-W_BOUND[0],H_BOUND[1]-H_BOUND[0]])
+	cost = np.ndarray([H_BOUND[1]-H_BOUND[0],W_BOUND[1]-W_BOUND[0]])
+	size = img_right.shape[1]
 	#size = img_right.shape[1]
 	#for x in range(W_BOUND[0],W_BOUND[1]):
 		#for y in range(H_BOUND[0],H_BOUND[1]):
@@ -247,9 +248,19 @@ def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
 		#	cost[x-W_BOUND[0],y-H_BOUND[0]] = best_depth
 	#stereo = cv.StereoBM_create(numDisparities=256, blockSize=7)
 	#cost = stereo.compute(L,R)
-	for x in range(W_BOUND[0],W_BOUND[1]):
-		for y in range(H_BOUND[0],H_BOUND[1]):
-			cost[x-W_BOUND[0],y-H_BOUND[0]] = np.max(np.abs(img_right[x,:]-img_left[x,y]))
+	#for x in range(W_BOUND[0],W_BOUND[1]):
+	#	for y in range(H_BOUND[0],H_BOUND[1]):
+	#		cost[x-W_BOUND[0],y-H_BOUND[0]] = np.max(np.abs(img_right[x,:]-img_left[x,y]))
+
+	for x in range(H_BOUND[0],H_BOUND[1]):
+		patchmatrix = np.zeros([(K_SIZE-1)**2,size])
+		for b in range(k_half,size-k_half):
+			patchmatrix[:,b] = np.reshape(img_right[x-k_half:x+k_half,b-k_half:b+k_half],(K_SIZE-1)**2)
+		for y in range(W_BOUND[0],W_BOUND[1]):
+			patch1 = img_left[x-k_half:x+k_half,y-k_half:y+k_half]
+			tmp = np.dot(patchmatrix.transpose(),np.reshape(patch1,((K_SIZE-1)**2,1)))/(np.linalg.norm(patchmatrix,2,1)*np.linalg.norm(patch1,2))
+			cost[x-H_BOUND[0],y-W_BOUND[0]] = tmp.max()
+
 	depth = disparity_to_depth(cost)
 	write_depth_to_image(depth,'flowers.png')
 
