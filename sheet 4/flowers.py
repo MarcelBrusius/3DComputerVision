@@ -28,8 +28,8 @@ H_BOUND = (350, 650)
 W_BOUND = (60, 230)
 """
 
-H_BOUND = (350, 650)
-W_BOUND = (60, 230)
+H_BOUND = (0, 660)
+W_BOUND = (0, 960)
 
 #H_BOUND = (400, 650)
 #W_BOUND = (40, 230)
@@ -146,9 +146,10 @@ def write_depth_to_image(depth, f_name):
 	#here was also an error...
 	max_depth = np.max(depth)
 	min_depth = np.min(depth)
-	depth_v1 = 255 - 255*((depth-min_depth)/max_depth)
-	#depth_v2 = 255*((depth-min_depth)/max_depth)
-
+	
+	d = ((depth-min_depth)/max_depth)
+	#depth_v1 = 255 - 255*((depth-min_depth)/max_depth)
+	depth_v1 = 255*((depth-min_depth)/(max_depth-min_depth))
 	cv.imwrite(f_name, depth_v1)
 	return True
 
@@ -234,21 +235,34 @@ def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
 	#L = img_left[W_BOUND[0]:W_BOUND[1],H_BOUND[0]:H_BOUND[1]]
 	#R = img_right[W_BOUND[0]:W_BOUND[1],H_BOUND[0]:H_BOUND[1]]
 	cost = np.ndarray([W_BOUND[1]-W_BOUND[0],H_BOUND[1]-H_BOUND[0]])
-	size = img_right.shape[1]
-	for x in range(W_BOUND[0],W_BOUND[1]):
-		print(x)
-		for y in range(H_BOUND[0],H_BOUND[1]):
-			patch1 = img_left[x-k_half:x+k_half,y-k_half:y+k_half,:]
-			best_depth = float("-inf")
-			for b in range(W_BOUND[0]+np.int(BASELINE),W_BOUND[1]+np.int(BASELINE)):
-				test = ncc(patch1,img_right[x-k_half:x+k_half,b-k_half:b+k_half,:])
-				if (test > best_depth):
-					best_depth = test
-			cost[x-W_BOUND[0],y-H_BOUND[0]] = best_depth
+	#size = img_right.shape[1]
+	#for x in range(W_BOUND[0],W_BOUND[1]):
+		#for y in range(H_BOUND[0],H_BOUND[1]):
+		#	patch1 = img_left[x-k_half:x+k_half,y-k_half:y+k_half,:]
+		#	best_depth = float("-inf")
+		#	for b in range(W_BOUND[0]+np.int(BASELINE),W_BOUND[1]+np.int(BASELINE)):
+		#		test = ncc(patch1,img_right[x-k_half:x+k_half,b-k_half:b+k_half,:])
+		#		if (test > best_depth):
+		#			best_depth = test
+		#	cost[x-W_BOUND[0],y-H_BOUND[0]] = best_depth
 	#stereo = cv.StereoBM_create(numDisparities=256, blockSize=7)
 	#cost = stereo.compute(L,R)
+	for x in range(W_BOUND[0],W_BOUND[1]):
+		for y in range(H_BOUND[0],H_BOUND[1]):
+			cost[x-W_BOUND[0],y-H_BOUND[0]] = np.max(np.abs(img_right[x,:]-img_left[x,y]))
 	depth = disparity_to_depth(cost)
-	write_depth_to_image(depth,'depth.png')
+	write_depth_to_image(depth,'flowers.png')
+
+	size = cost.shape
+	world = np.zeros([size[0],size[1],3])
+	for x in range(size[0]):	
+		for y in range(size[1]):
+			world[x,y,:] = depth_to_3d(depth[x,y],y,x)
+	W = np.zeros([world.shape[0]*world.shape[1],3])
+	for i in range(3):
+		W[:,i] = np.reshape(world[:,:,i],[world.shape[0]*world.shape[1]])
+
+	ply_creator(W,'Flowers')
 	"""
 	TODO
 	This is the main function that you have to write.
@@ -279,12 +293,18 @@ def main():
 	l_file = 'data/flowers_perfect/im0.png'
 	l_im = cv.imread(l_file)
 	resized_l_img = cv.pyrDown(l_im, SCALE_FACTOR)
-	left_img = copy_make_border(resized_l_img, K_SIZE)
+	left_img = copy_make_border(resized_l_img, K_SIZE)/255
+	left = (left_img[:,:,1]+left_img[:,:,1]+left_img[:,:,1])/3
+
 	# load Right image
 	r_file = 'data/flowers_perfect/im1.png'
 	r_im = cv.imread(r_file)
 	resized_r_img = cv.pyrDown(r_im, SCALE_FACTOR)
-	right_img = copy_make_border(resized_r_img, K_SIZE)
+	right_img = copy_make_border(resized_r_img, K_SIZE)/255
+	right = (right_img[:,:,1]+right_img[:,:,1]+right_img[:,:,1])/3
+
+	#cv.imshow("Image",right_img)
+	#cv.waitKey(0)
 
 	#cv.imshow("Image",left_img[60:230,350:650,:])
 	#cv.waitKey(0)
@@ -295,5 +315,5 @@ def main():
 	#cv.waitKey(0)
 
 	# TODO: #1 fill in the stereo_matching() function called below
-	dummy = stereo_matching(left_img, right_img, K_SIZE, disp_per_pixel)
+	dummy = stereo_matching(left, right, K_SIZE, disp_per_pixel)
 main()

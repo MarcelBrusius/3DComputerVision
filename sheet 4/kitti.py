@@ -114,8 +114,8 @@ def write_depth_to_image(depth, f_name):
 	assert (depth.ndim==2),"Depth map should be a 2D array "
 	max_depth = np.max(depth)
 	min_depth = np.min(depth)
-	depth_v1 = 255 - 255*((depth-min_depth)/max_depth)
-	#depth_v2 = 255*((depth-min_depth)/max_depth)
+	#depth_v1 = 255 - 255*((depth-min_depth)/max_depth)
+	depth_v1 = 255*((depth-min_depth)/max_depth)
 	cv.imwrite(f_name, depth_v1)
 	return True
 
@@ -185,10 +185,10 @@ def ssd(feature_1, feature_2):
 
 def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
 	cost = img_left[H_BOUND[0]:H_BOUND[1],W_BOUND[0]:W_BOUND[1]]
-	k_half = np.int(K_SIZE/2.0)	
 	for x in range(H_BOUND[0],H_BOUND[1]):
 		for y in range(W_BOUND[0],W_BOUND[1]):
-			cost[x-H_BOUND[0],y-W_BOUND[0]] = np.max((img_right[x,:]-img_left[x,y])**2)
+			#cost[x-H_BOUND[0],y-W_BOUND[0]] = np.max((img_right[x,:]-img_left[x,y])**2)
+			cost[x-H_BOUND[0],y-W_BOUND[0]] = np.max(np.abs(img_right[x,:]-img_left[x,y]))
 	depth = disparity_to_depth(cost)
 	write_depth_to_image(depth,'Kitti.png')
 	"""
