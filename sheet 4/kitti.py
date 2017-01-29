@@ -185,10 +185,21 @@ def ssd(feature_1, feature_2):
 
 def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
 	cost = img_left[H_BOUND[0]:H_BOUND[1],W_BOUND[0]:W_BOUND[1]]
+	k_half = np.int(K_SIZE/2)
+	size = img_right.shape[1]
+	#for x in range(H_BOUND[0],H_BOUND[1]):
+	#	for y in range(W_BOUND[0],W_BOUND[1]):
+	#		#cost[x-H_BOUND[0],y-W_BOUND[0]] = np.max((img_right[x,:]-img_left[x,y])**2)
+	#		cost[x-H_BOUND[0],y-W_BOUND[0]] = np.max(np.abs(img_right[x,:]-img_left[x,y]))
+
 	for x in range(H_BOUND[0],H_BOUND[1]):
+		patchmatrix = np.zeros([(K_SIZE-1)**2,size])
+		for b in range(k_half,size-k_half):
+			patchmatrix[:,b] = np.reshape(img_right[x-k_half:x+k_half,b-k_half:b+k_half],(K_SIZE-1)**2)
 		for y in range(W_BOUND[0],W_BOUND[1]):
-			#cost[x-H_BOUND[0],y-W_BOUND[0]] = np.max((img_right[x,:]-img_left[x,y])**2)
-			cost[x-H_BOUND[0],y-W_BOUND[0]] = np.max(np.abs(img_right[x,:]-img_left[x,y]))
+			patch1 = img_left[x-k_half:x+k_half,y-k_half:y+k_half]
+			tmp = patchmatrix-np.reshape(patch1,((K_SIZE-1)**2,1))
+			cost[x-H_BOUND[0],y-W_BOUND[0]] = np.min(np.linalg.norm(tmp,2,1))
 	depth = disparity_to_depth(cost)
 	write_depth_to_image(depth,'Kitti.png')
 
