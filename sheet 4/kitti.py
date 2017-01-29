@@ -127,7 +127,7 @@ def depth_to_3d(Z, y, x):
 	Then scale it so that you will get the point at depth equal to Z.
 	the scale the vector
 	"""
-	X_W = Z*np.dot(np.linalg.inv(K_LEFT),np.asarray([[x],[y],[1]]))
+	X_W = Z*np.dot(np.linalg.inv(K),np.asarray([[x],[y],[1]]))
 	X_W = X_W.reshape(3,1)
 	# returns a list [X, Y, Z]
 	return [X_W[0,0], X_W[1,0], X_W[2,0]]
@@ -191,6 +191,17 @@ def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
 			cost[x-H_BOUND[0],y-W_BOUND[0]] = np.max(np.abs(img_right[x,:]-img_left[x,y]))
 	depth = disparity_to_depth(cost)
 	write_depth_to_image(depth,'Kitti.png')
+
+	size = cost.shape
+	world = np.zeros([size[0],size[1],3])
+	for x in range(size[0]):	
+		for y in range(size[1]):
+			world[x,y,:] = depth_to_3d(depth[x,y],y,x)
+	W = np.zeros([world.shape[0]*world.shape[1],3])
+	for i in range(3):
+		W[:,i] = np.reshape(world[:,:,i],[world.shape[0]*world.shape[1]])
+
+	ply_creator(W,'Kitty')
 	"""
 	This is on of the functions that you have to write.
 	For the region of the leftimage delimited by H_BOUND and H_BOUND compute the following
