@@ -34,7 +34,7 @@ K_SIZE = 5
 # The following three variables will be used by the ply creation function,
 pre_text1 = """ply
 format ascii 1.0"""
-pre_text2 = "element vertex"
+pre_text2 = "element vertex "
 pre_text3 = """property float x
 property float y
 property float z
