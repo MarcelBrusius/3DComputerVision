@@ -239,10 +239,10 @@ def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
 		print(x)
 		for y in range(H_BOUND[0],H_BOUND[1]):
 			patch1 = img_left[x-k_half:x+k_half,y-k_half:y+k_half,:]
-			best_depth = float("inf")
+			best_depth = float("-inf")
 			for b in range(W_BOUND[0]+np.int(BASELINE),W_BOUND[1]+np.int(BASELINE)):
 				test = ncc(patch1,img_right[x-k_half:x+k_half,b-k_half:b+k_half,:])
-				if (test < best_depth):
+				if (test > best_depth):
 					best_depth = test
 			cost[x-W_BOUND[0],y-H_BOUND[0]] = best_depth
 	#stereo = cv.StereoBM_create(numDisparities=256, blockSize=7)

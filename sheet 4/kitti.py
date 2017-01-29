@@ -111,7 +111,7 @@ def write_depth_to_image(depth, f_name):
 	"""
 	This function writes depth map to f_name
 	"""
-	assert (input_.ndim==2),"Depth map should be a 2D array "
+	assert (depth.ndim==2),"Depth map should be a 2D array "
 	max_depth = np.max(depth)
 	min_depth = np.min(depth)
 	depth_v1 = 255 - 255*((depth-min_depth)/max_depth)
@@ -184,19 +184,13 @@ def ssd(feature_1, feature_2):
 	return np.linalg.norm(vec1 - vec2,2)**2
 
 def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
-	cost = img_left[W_BOUND[0]:W_BOUND[1]+1,H_BOUND[0]:H_BOUND[1]+1,:]
+	cost = img_left[H_BOUND[0]:H_BOUND[1],W_BOUND[0]:W_BOUND[1]]
 	k_half = np.int(K_SIZE/2.0)	
-	for x in range(W_BOUND[0],W_BOUND[1]):
-		for y in range(H_BOUND[0],H_BOUND[1]):
-			patch1 = img_left[x-k_half:x+k_half,y-k_half:y+k_half,:]
-			best_depth = float("-inf")
-			for b in range(B_BOUND[0],B_BOUND[1]):
-				test = ssd(patch1,img_right[y-k_half:y+k_half,b-k_half:b+k_half])
-				if (np.abs(test) > best_depth):
-					best_depth = np.abs(test)
-					cost[x-W_BOUND[0],y-H_BOUND[0]] = test
+	for x in range(H_BOUND[0],H_BOUND[1]):
+		for y in range(W_BOUND[0],W_BOUND[1]):
+			cost[x-H_BOUND[0],y-W_BOUND[0]] = np.max((img_right[x,:]-img_left[x,y])**2)
 	depth = disparity_to_depth(cost)
-	print(cost)
+	write_depth_to_image(depth,'Kitti.png')
 	"""
 	This is on of the functions that you have to write.
 	For the region of the leftimage delimited by H_BOUND and H_BOUND compute the following
@@ -218,7 +212,8 @@ def stereo_matching(img_left, img_right, K_SIZE, disp_per_pixel):
 		# Convert disparity to depth, use disparity_to_depth()
 		# Convert depth to point cloud, use depth_to_3d()
 		# Save point clouds as .ply and depth as .png files
-	raise NotImplementedError
+	#raise NotImplementedError
+	return True
 
 def main():
 	# Set parameters
@@ -231,12 +226,12 @@ def main():
 	l_file = 'data/kitti/l.png'
 	l_im = cv.imread(l_file,0)
 	resized_l_img = cv.pyrDown(l_im, SCALE_FACTOR)
-	left_img = copy_make_border(resized_l_img, K_SIZE)
+	left_img = copy_make_border(resized_l_img, K_SIZE)/255
 	# load Right image
 	r_file = 'data/kitti/r.png'
 	r_im = cv.imread(r_file,0)
 	resized_r_img = cv.pyrDown(r_im, SCALE_FACTOR)
-	right_img = copy_make_border(resized_r_img, K_SIZE)
+	right_img = copy_make_border(resized_r_img, K_SIZE)/255
 	# TODO: #1 fill in the stereo_matching() function called below
 	dummy = stereo_matching(left_img, right_img, K_SIZE, disp_per_pixel)
 main()
