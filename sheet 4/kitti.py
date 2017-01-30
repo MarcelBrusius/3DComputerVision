@@ -29,7 +29,7 @@ DOFFS = 0
 # Outlier filter threshold for ssd
 O_F_THRESHOLD = 2.0
 SIMILARITY_MERTIC = 'ssd'
-K_SIZE = 5
+K_SIZE = 11
 
 # The following three variables will be used by the ply creation function,
 pre_text1 = """ply
@@ -115,7 +115,7 @@ def write_depth_to_image(depth, f_name):
 	max_depth = np.max(depth)
 	min_depth = np.min(depth)
 	#depth_v1 = 255 - 255*((depth-min_depth)/max_depth)
-	depth_v1 = 255*((depth-min_depth)/max_depth)
+	depth_v1 = 255*((depth-min_depth)/(max_depth-min_depth))
 	cv.imwrite(f_name, depth_v1)
 	return True
 

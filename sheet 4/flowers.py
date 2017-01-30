@@ -31,8 +31,8 @@ W_BOUND = (60, 230)
 #H_BOUND = (0, 660)
 #W_BOUND = (0, 960)
 
-H_BOUND = (400, 650)
-W_BOUND = (40, 230)
+H_BOUND = (200, 900)
+W_BOUND = (100, 1200)
 
 #H_BOUND = (550, 560)
 #W_BOUND = (850, 860)
